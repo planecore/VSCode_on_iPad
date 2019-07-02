@@ -3,10 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9012F96422C957C900B82113 /* FormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9012F96322C957C900B82113 /* FormViewController.swift */; };
+		90B726B022CA397400E502E7 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 90B726AF22CA397400E502E7 /* KeychainSwift */; };
 		90F0FF1E22C945D00056D2FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F0FF1D22C945D00056D2FB /* AppDelegate.swift */; };
 		90F0FF2022C945D00056D2FB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F0FF1F22C945D00056D2FB /* SceneDelegate.swift */; };
 		90F0FF2222C945D00056D2FB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F0FF2122C945D00056D2FB /* ViewController.swift */; };
@@ -16,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9012F96322C957C900B82113 /* FormViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormViewController.swift; sourceTree = "<group>"; };
 		90F0FF1A22C945D00056D2FB /* VSCode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VSCode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		90F0FF1D22C945D00056D2FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90F0FF1F22C945D00056D2FB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -31,6 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90B726B022CA397400E502E7 /* KeychainSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +63,7 @@
 				90F0FF1D22C945D00056D2FB /* AppDelegate.swift */,
 				90F0FF1F22C945D00056D2FB /* SceneDelegate.swift */,
 				90F0FF2122C945D00056D2FB /* ViewController.swift */,
+				9012F96322C957C900B82113 /* FormViewController.swift */,
 				90F0FF2322C945D00056D2FB /* Main.storyboard */,
 				90F0FF2622C945D20056D2FB /* Assets.xcassets */,
 				90F0FF2822C945D20056D2FB /* LaunchScreen.storyboard */,
@@ -83,6 +88,9 @@
 			dependencies = (
 			);
 			name = VSCode;
+			packageProductDependencies = (
+				90B726AF22CA397400E502E7 /* KeychainSwift */,
+			);
 			productName = VSCode;
 			productReference = 90F0FF1A22C945D00056D2FB /* VSCode.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +119,9 @@
 				Base,
 			);
 			mainGroup = 90F0FF1122C945D00056D2FB;
+			packageReferences = (
+				90B726AE22CA397300E502E7 /* XCRemoteSwiftPackageReference "keychain-swift" */,
+			);
 			productRefGroup = 90F0FF1B22C945D00056D2FB /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -140,6 +151,7 @@
 			files = (
 				90F0FF2222C945D00056D2FB /* ViewController.swift in Sources */,
 				90F0FF1E22C945D00056D2FB /* AppDelegate.swift in Sources */,
+				9012F96422C957C900B82113 /* FormViewController.swift in Sources */,
 				90F0FF2022C945D00056D2FB /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -285,7 +297,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = T8HKXLJ6T3;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VSCode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -303,7 +315,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = T8HKXLJ6T3;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VSCode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -338,6 +350,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		90B726AE22CA397300E502E7 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 16.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		90B726AF22CA397400E502E7 /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 90B726AE22CA397300E502E7 /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 90F0FF1222C945D00056D2FB /* Project object */;
 }

@@ -7,14 +7,178 @@
 //
 
 import UIKit
+import WebKit
+import KeychainSwift
 
+var mainVC: ViewController? = nil
 class ViewController: UIViewController {
-
+    
+    @IBOutlet weak var webView: WKWebView!
+    /// The activity indicator in the navigation bar
+    let activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+    /// This view is used to set a color for the home indicator area on newer iPads, so it'll match VSCode's task bar color.
+    private var insetView: UIView? = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        webView.navigationDelegate = self
+        // disables the bounce when user trys to scroll non-scrollable areas.
+        webView.scrollView.bounces = false
+        // adding activity indicator to navigation bar
+        let currentReload = navigationItem.rightBarButtonItem!
+        let barButton = UIBarButtonItem(customView: activityIndicator)
+        navigationItem.setRightBarButtonItems([currentReload, barButton], animated: false)
     }
-
-
+    
+    // code-server has some weird rendering issues when changing its view size, so we'll reload it.
+    override func viewWillLayoutSubviews() {
+        webView.reload()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        mainVC = self
+        loadViewContent(stopWebView: false)
+    }
+    
+    /**
+     Loads the web view, if it's a new user it'll present `FormViewController`.
+     
+     - Parameter stopWebView: When the user deletes its code-server address use `stopWebView` to stop code-server web view.
+    */
+    func loadViewContent(stopWebView: Bool) {
+        if UserDefaults.standard.contains(key: "host") {
+            loadWebView()
+        } else {
+            if stopWebView {
+                webView.load(URLRequest(url: URL(string:"about:blank")!))
+                removeSafeAreaBottomInsetColor(insetView: insetView)
+            } else {
+                loadWelcome()
+            }
+        }
+    }
+    
+    /// Load code-server with the address the user provided.
+    func loadWebView() {
+        guard let url = UserDefaults.standard.url(forKey: "host") else {
+            return
+        }
+        let request = URLRequest(url: url)
+        webView.load(request)
+    }
+    
+    /// Shows `FormViewController` when opening the app and there's no code-server address provided.
+    func loadWelcome() {
+        performSegue(withIdentifier: "presentSettings", sender: self)
+    }
+    
+    /// Refresh code-server web view when the reload button in the navigation bar is tapped.
+    @IBAction func refreshWebView(_ sender: Any) {
+        webView.reloadFromOrigin()
+    }
+    
 }
 
+extension ViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        activityIndicator.startAnimating()
+    }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        activityIndicator.stopAnimating()
+        guard let url = webView.url else {
+            return
+        }
+        if url.lastPathComponent == "login" {
+            // the login page has a white background so we'll match the home indicator area to its color.
+            insetView = paintSafeAreaBottomInset(withColor: UIColor.white)
+            // if the user provided its password, we'll auto-fill his password automatically.
+            if var password = KeychainSwift().get("password") {
+                password = password.replacingOccurrences(of: #"\"#, with: #"\\"#)
+                password = password.replacingOccurrences(of: #"'"#, with: #"\'"#)
+                password = password.replacingOccurrences(of: #"\""#, with: #"\\""#)
+                webView.evaluateJavaScript(#"var myInterval = window.setInterval(() => { if (document.getElementById("password") !== undefined) { document.getElementById("password").value = ""# + password + #""; document.getElementById("submit").click(); clearInterval(myInterval); } }, 100)"#, completionHandler: nil)
+            }
+        } else if url.absoluteString != "about:blank" {
+            // code-server loaded, match its color to VSCode's tab bar.
+            insetView = paintSafeAreaBottomInset(withColor: UIColor(rgbString: "rgb(0, 122, 204)")!)
+        }
+    }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        activityIndicator.stopAnimating()
+    }
+}
+
+extension UserDefaults {
+    /**
+     Check if `UserDefaults` contains value for key.
+     
+     - Parameter key: The key to search value for.
+     
+     - Returns: Is there a value for the key.
+    */
+    func contains(key: String) -> Bool {
+        return self.object(forKey: key) != nil
+    }
+}
+
+/// Few functions to set and remove the colors of the home indicator area.
+extension UIViewController {
+    // https://stackoverflow.com/a/47353886
+    private static let insetBackgroundViewTag = 98721
+    func paintSafeAreaBottomInset(withColor color: UIColor) -> UIView? {
+        guard #available(iOS 11.0, *) else {
+            return nil
+        }
+        if let insetView = view.viewWithTag(UIViewController.insetBackgroundViewTag) {
+            insetView.backgroundColor = color
+            return nil
+        }
+        let insetView = UIView(frame: .zero)
+        insetView.tag = UIViewController.insetBackgroundViewTag
+        insetView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(insetView)
+        view.sendSubviewToBack(insetView)
+        insetView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        insetView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        insetView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        insetView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        insetView.backgroundColor = color
+        return insetView
+    }
+    
+    func removeSafeAreaBottomInsetColor(insetView: UIView? = nil) {
+        guard #available(iOS 11.0, *) else {
+            return
+        }
+        if let insetView = view.viewWithTag(UIViewController.insetBackgroundViewTag) {
+            insetView.backgroundColor = nil
+            return
+        }
+        insetView?.removeFromSuperview()
+    }
+}
+
+extension UIColor {
+    /**
+     Initialize `UIColor` from JavaScript string.
+     
+     - Parameter rgbString: JavaScript color string.
+     
+    */
+    convenience init?(rgbString: String) {
+        var str = rgbString.dropFirst(4)
+        str = str.dropLast()
+        str = str.split(separator: " ").joined() + ""
+        let array = str.split(separator: ",")
+        if let r = Double(array[0]), r >= 0 && r <= 255,
+            let g = Double(array[1]), g >= 0 && g <= 255,
+            let b = Double(array[2]), b >= 0 && b <= 255 {
+            print(g)
+            print(CGFloat(g/255))
+            self.init(red: CGFloat(r/255), green: CGFloat(g/255), blue: CGFloat(b/255), alpha: 1.0)
+        } else {
+            return nil
+        }
+    }
+}
