@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		9012F96422C957C900B82113 /* FormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9012F96322C957C900B82113 /* FormViewController.swift */; };
 		90B726B022CA397400E502E7 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 90B726AF22CA397400E502E7 /* KeychainSwift */; };
+		90EC43E622CCA0A500D59A0F /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90EC43E522CCA0A500D59A0F /* WebKit.framework */; };
 		90F0FF1E22C945D00056D2FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F0FF1D22C945D00056D2FB /* AppDelegate.swift */; };
 		90F0FF2022C945D00056D2FB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F0FF1F22C945D00056D2FB /* SceneDelegate.swift */; };
 		90F0FF2222C945D00056D2FB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F0FF2122C945D00056D2FB /* ViewController.swift */; };
@@ -19,6 +20,7 @@
 
 /* Begin PBXFileReference section */
 		9012F96322C957C900B82113 /* FormViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormViewController.swift; sourceTree = "<group>"; };
+		90EC43E522CCA0A500D59A0F /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		90F0FF1A22C945D00056D2FB /* VSCode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VSCode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		90F0FF1D22C945D00056D2FB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90F0FF1F22C945D00056D2FB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -34,6 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90EC43E622CCA0A500D59A0F /* WebKit.framework in Frameworks */,
 				90B726B022CA397400E502E7 /* KeychainSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -41,11 +44,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		90EC43E422CCA0A400D59A0F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				90EC43E522CCA0A500D59A0F /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		90F0FF1122C945D00056D2FB = {
 			isa = PBXGroup;
 			children = (
 				90F0FF1C22C945D00056D2FB /* VSCode */,
 				90F0FF1B22C945D00056D2FB /* Products */,
+				90EC43E422CCA0A400D59A0F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};

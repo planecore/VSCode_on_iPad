@@ -15,30 +15,61 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var webView: WKWebView!
     /// The activity indicator in the navigation bar
-    let activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+    private let activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
     /// This view is used to set a color for the home indicator area on newer iPads, so it'll match VSCode's task bar color.
     private var insetView: UIView? = nil
+    /// Keyboard height in order to adjust `webView` height
+    private var keyboardHeight: CGFloat = 0 {
+        didSet {
+            guard let bottomSafeArea = view.window?.safeAreaInsets.bottom else {
+                return
+            }
+            var offset = bottomSafeArea - keyboardHeight
+            if offset == -420 {
+                return
+            }
+            if offset > 0 {
+                offset = 0
+            }
+            if offset == 0 {
+                insetView = paintSafeAreaBottomInset(withColor: UIColor(rgbString: "rgb(0, 122, 204)")!)
+            } else {
+                removeSafeAreaBottomInsetColor(insetView: insetView)
+            }
+            view.constraintWithIdentifier("webViewBottom")?.constant = offset
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         webView.navigationDelegate = self
         // disables the bounce when user trys to scroll non-scrollable areas.
         webView.scrollView.bounces = false
+        webView.scrollView.delegate = self
         // adding activity indicator to navigation bar
         let currentReload = navigationItem.rightBarButtonItem!
         let barButton = UIBarButtonItem(customView: activityIndicator)
         navigationItem.setRightBarButtonItems([currentReload, barButton], animated: false)
+        setKeyboardNotifications()
     }
     
-    // code-server has some weird rendering issues when changing its view size, so we'll reload it.
-    override func viewWillLayoutSubviews() {
-        webView.reload()
+    /// Adds notifications to detect keyboard frame changes.
+    func setKeyboardNotifications() {
+        // adding notification to detect keyboard appearance
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardStateChanges), name: UIResponder.keyboardDidChangeFrameNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardHides), name: UIResponder.keyboardDidHideNotification, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         mainVC = self
         loadViewContent(stopWebView: false)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.webView.evaluateJavaScript("var evt = document.createEvent('UIEvents'); evt.initUIEvent('resize', true, false,window,0); window.dispatchEvent(evt); ", completionHandler: nil)
+        }
     }
     
     /**
@@ -78,6 +109,24 @@ class ViewController: UIViewController {
         webView.reloadFromOrigin()
     }
     
+    /// Called when keyboard frame changes
+    @objc func keyboardStateChanges(_ notification: Notification) {
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            if keyboardRectangle.height == 216 || keyboardRectangle.height == 244 {
+                // when using the floating keyboard the webview should fill the whole screen.
+                self.keyboardHeight = 0
+            } else {
+                self.keyboardHeight = keyboardRectangle.height
+            }
+        }
+    }
+    
+    /// Called when keyboard hides
+    @objc func keyboardHides(_ notification: Notification) {
+        self.keyboardHeight = 0
+    }
+    
 }
 
 extension ViewController: WKNavigationDelegate {
@@ -106,6 +155,12 @@ extension ViewController: WKNavigationDelegate {
     }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         activityIndicator.stopAnimating()
+    }
+}
+
+extension ViewController: UIScrollViewDelegate {
+    func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
+        scrollView.pinchGestureRecognizer?.isEnabled = false
     }
 }
 
@@ -174,11 +229,18 @@ extension UIColor {
         if let r = Double(array[0]), r >= 0 && r <= 255,
             let g = Double(array[1]), g >= 0 && g <= 255,
             let b = Double(array[2]), b >= 0 && b <= 255 {
-            print(g)
-            print(CGFloat(g/255))
             self.init(red: CGFloat(r/255), green: CGFloat(g/255), blue: CGFloat(b/255), alpha: 1.0)
         } else {
             return nil
         }
+    }
+}
+
+extension UIView {
+    /// Returns the first constraint with the given identifier, if available.
+    ///
+    /// - Parameter identifier: The constraint identifier.
+    func constraintWithIdentifier(_ identifier: String) -> NSLayoutConstraint? {
+        return self.constraints.first { $0.identifier == identifier }
     }
 }
