@@ -25,12 +25,15 @@ class ViewController: UIViewController {
                 return
             }
             var offset = bottomSafeArea - keyboardHeight
+            // there's a bug on the iPadOS beta where the system tells the app that the keyboard is up even
+            // when it's not. this line should prevent that from happening.
             if offset == -420 {
                 return
             }
             if offset > 0 {
                 offset = 0
             }
+            // updates the home indicator area color
             if offset == 0 {
                 insetView = paintSafeAreaBottomInset(withColor: UIColor(rgbString: "rgb(0, 122, 204)")!)
             } else {
@@ -66,6 +69,8 @@ class ViewController: UIViewController {
         loadViewContent(stopWebView: false)
     }
     
+    // WKWebView doesn't update the layout of code-server (probably a bug) when we change
+    // its size, so we'll force code-server to relayout.
     override func viewDidLayoutSubviews() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.webView.evaluateJavaScript("var evt = document.createEvent('UIEvents'); evt.initUIEvent('resize', true, false,window,0); window.dispatchEvent(evt); ", completionHandler: nil)
