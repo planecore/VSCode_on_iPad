@@ -58,7 +58,6 @@ class ViewController: UIViewController {
     
     /// Adds notifications to detect keyboard frame changes.
     func setKeyboardNotifications() {
-        // adding notification to detect keyboard appearance
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardStateChanges), name: UIResponder.keyboardDidChangeFrameNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHides), name: UIResponder.keyboardDidHideNotification, object: nil)
     }
@@ -151,7 +150,7 @@ extension ViewController: WKNavigationDelegate {
                 password = password.replacingOccurrences(of: #"\"#, with: #"\\"#)
                 password = password.replacingOccurrences(of: #"'"#, with: #"\'"#)
                 password = password.replacingOccurrences(of: #"\""#, with: #"\\""#)
-                webView.evaluateJavaScript(#"var myInterval = window.setInterval(() => { if (document.getElementById("password") !== undefined) { document.getElementById("password").value = ""# + password + #""; document.getElementById("submit").click(); clearInterval(myInterval); } }, 100)"#, completionHandler: nil)
+                webView.evaluateJavaScript(#"var myInterval = window.setInterval(() => { if (document.querySelector('input[type="password"]') !== undefined) { document.querySelector('input[type="password"]').value = ""# + password + #""; document.querySelector('input[type="submit"]').click(); clearInterval(myInterval); } }, 100)"#, completionHandler: nil)
             }
         } else if url.absoluteString != "about:blank" {
             // code-server loaded, match its color to VSCode's tab bar.
